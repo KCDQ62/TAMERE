@@ -195,17 +195,17 @@
     <form id="registerForm">
       <div class="form-group">
         <label for="username">Nom d'utilisateur</label>
-        <input type="text" id="username" name="username" placeholder="Votre nom d'utilisateur" required autocomplete="username" minlength="3" maxlength="20">
+        <input type="text" id="username" name="username" placeholder="Votre nom d'utilisateur" required  minlength="3" maxlength="20">
       </div>
 
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="votreemail@exemple.com" required autocomplete="email">
+        <input type="email" id="email" name="email" placeholder="votreemail@exemple.com" required >
       </div>
 
       <div class="form-group">
         <label for="password">Mot de passe</label>
-        <input type="password" id="password" name="password" placeholder="Minimum 6 caractères" required autocomplete="new-password" minlength="6">
+        <input type="password" id="password" name="password" placeholder="Minimum 6 caractères" required  minlength="6">
         <div class="password-strength" id="passwordStrength">
           <div class="strength-bar">
             <div class="strength-bar-fill"></div>
@@ -215,7 +215,7 @@
 
       <div class="form-group">
         <label for="confirmPassword">Confirmer le mot de passe</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Répétez votre mot de passe" required autocomplete="new-password">
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Répétez votre mot de passe" >
       </div>
 
       <button type="submit" class="btn-primary" id="registerBtn">
