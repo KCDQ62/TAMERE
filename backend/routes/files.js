@@ -1,4 +1,3 @@
-```javascript
 const express = require('express');
 const router = express.Router();
 const auth = require('../middleware/auth');
@@ -52,4 +51,3 @@ router.post('/upload/abort', auth, async (req, res) => {
 });
 
 module.exports = router;
-```

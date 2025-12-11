@@ -1,4 +1,3 @@
-```javascript
 const { verifyToken } = require('../config/jwt');
 const User = require('../models/User');
 
@@ -29,9 +28,9 @@ const auth = async (req, res, next) => {
     req.user = user;
     next();
   } catch (error) {
+    console.error('Erreur auth middleware:', error);
     res.status(401).json({ error: 'Authentification échouée' });
   }
 };
 
 module.exports = auth;
-```

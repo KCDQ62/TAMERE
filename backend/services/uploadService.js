@@ -1,4 +1,3 @@
-```javascript
 const File = require('../models/File');
 const s3 = require('../config/cloudStorage');
 const { v4: uuidv4 } = require('uuid');
@@ -36,6 +35,7 @@ const initializeUpload = async (originalName, fileSize, mimeType, userId) => {
       uploadId: multipartUpload.UploadId,
     };
   } catch (error) {
+    console.error('Erreur init upload:', error);
     throw new Error('Erreur d\'initialisation de l\'upload');
   }
 };
@@ -73,6 +73,7 @@ const uploadChunk = async (fileId, chunkBuffer, chunkNumber, totalChunks) => {
       progress: (file.chunks.length / totalChunks) * 100,
     };
   } catch (error) {
+    console.error('Erreur upload chunk:', error);
     throw new Error('Erreur d\'upload du chunk');
   }
 };
@@ -114,6 +115,7 @@ const completeUpload = async (fileId) => {
       fileSize: file.fileSize,
     };
   } catch (error) {
+    console.error('Erreur complete upload:', error);
     throw new Error('Erreur de finalisation de l\'upload');
   }
 };
@@ -137,6 +139,7 @@ const abortUpload = async (fileId) => {
     // Supprimer l'entrée de la base de données
     await File.findByIdAndDelete(fileId);
   } catch (error) {
+    console.error('Erreur abort upload:', error);
     throw new Error('Erreur d\'annulation de l\'upload');
   }
 };
@@ -147,4 +150,3 @@ module.exports = {
   completeUpload,
   abortUpload,
 };
-```

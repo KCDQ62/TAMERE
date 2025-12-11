@@ -1,4 +1,3 @@
-```javascript
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
@@ -13,6 +12,7 @@ router.get('/me', auth, async (req, res) => {
     
     res.json(user);
   } catch (error) {
+    console.error('Erreur profil:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
@@ -32,6 +32,7 @@ router.get('/search', auth, async (req, res) => {
     
     res.json(users);
   } catch (error) {
+    console.error('Erreur recherche:', error);
     res.status(500).json({ error: 'Erreur de recherche' });
   }
 });
@@ -65,6 +66,7 @@ router.post('/friend-request/:userId', auth, async (req, res) => {
 
     res.json({ message: 'Demande d\'ami envoyée' });
   } catch (error) {
+    console.error('Erreur demande ami:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
@@ -93,6 +95,7 @@ router.post('/friend-request/:userId/accept', auth, async (req, res) => {
 
     res.json({ message: 'Ami ajouté' });
   } catch (error) {
+    console.error('Erreur accepter ami:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
@@ -105,9 +108,9 @@ router.get('/friends', auth, async (req, res) => {
     
     res.json(user.friends);
   } catch (error) {
+    console.error('Erreur liste amis:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
 
 module.exports = router;
-```

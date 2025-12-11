@@ -1,4 +1,3 @@
-```javascript
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
@@ -33,6 +32,7 @@ router.post('/register', async (req, res) => {
       token,
     });
   } catch (error) {
+    console.error('Erreur inscription:', error);
     res.status(500).json({ error: 'Erreur lors de l\'inscription' });
   }
 });
@@ -69,9 +69,9 @@ router.post('/login', async (req, res) => {
       token,
     });
   } catch (error) {
+    console.error('Erreur connexion:', error);
     res.status(500).json({ error: 'Erreur lors de la connexion' });
   }
 });
 
 module.exports = router;
-```

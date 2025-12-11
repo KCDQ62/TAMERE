@@ -1,4 +1,3 @@
-```javascript
 const express = require('express');
 const router = express.Router();
 const Message = require('../models/Message');
@@ -20,6 +19,7 @@ router.get('/user/:userId', auth, async (req, res) => {
 
     res.json(messages);
   } catch (error) {
+    console.error('Erreur messages user:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
@@ -36,6 +36,7 @@ router.get('/group/:groupId', auth, async (req, res) => {
 
     res.json(messages);
   } catch (error) {
+    console.error('Erreur messages groupe:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
@@ -54,9 +55,9 @@ router.put('/:messageId/read', auth, async (req, res) => {
 
     res.json({ message: 'Message marqué comme lu' });
   } catch (error) {
+    console.error('Erreur marquer lu:', error);
     res.status(500).json({ error: 'Erreur serveur' });
   }
 });
 
 module.exports = router;
-```

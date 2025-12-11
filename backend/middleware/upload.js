@@ -1,6 +1,4 @@
-```javascript
 const multer = require('multer');
-const path = require('path');
 
 // Configuration pour upload en mémoire (pour chunks)
 const storage = multer.memoryStorage();
@@ -19,4 +17,3 @@ const upload = multer({
 });
 
 module.exports = upload;
-```
