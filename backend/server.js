@@ -15,24 +15,66 @@ const fileRoutes = require('./routes/files');
 
 const app = express();
 const server = http.createServer(app);
+
+// ✅ CORRECTION: CORS flexible pour Railway
+const allowedOrigins = [
+  'http://localhost:8080',
+  'http://localhost:3000',
+  process.env.CLIENT_URL,
+  process.env.RAILWAY_PUBLIC_DOMAIN ? `https://${process.env.RAILWAY_PUBLIC_DOMAIN}` : null,
+].filter(Boolean);
+
 const io = socketIo(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:8080',
+    origin: (origin, callback) => {
+      // Permettre les requêtes sans origin (mobile apps, Postman)
+      if (!origin) return callback(null, true);
+      
+      // Permettre tous les domaines Railway
+      if (origin.includes('railway.app') || origin.includes('up.railway.app')) {
+        return callback(null, true);
+      }
+      
+      // Vérifier la liste blanche
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      
+      callback(new Error('Not allowed by CORS'));
+    },
     methods: ['GET', 'POST'],
     credentials: true
-  }
+  },
+  // ✅ CORRECTION: Ajouter transport WebSocket
+  transports: ['websocket', 'polling']
 });
 
 // Connexion à la base de données
 connectDB();
 
-// Middleware
+// ✅ CORRECTION: Middleware CORS flexible
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:8080',
+  origin: (origin, callback) => {
+    if (!origin) return callback(null, true);
+    if (origin.includes('railway.app') || origin.includes('up.railway.app')) {
+      return callback(null, true);
+    }
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// ✅ CORRECTION: Ajouter logs de démarrage
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.path}`);
+  next();
+});
 
 // Routes API
 app.use('/api/auth', authRoutes);
@@ -43,7 +85,28 @@ app.use('/api/files', fileRoutes);
 
 // Route de test
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', message: 'Serveur en ligne' });
+  res.json({ 
+    status: 'ok', 
+    message: 'Serveur en ligne',
+    env: process.env.NODE_ENV,
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
+// ✅ CORRECTION: Route racine
+app.get('/', (req, res) => {
+  res.json({ 
+    message: 'Communication App API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth',
+      users: '/api/users',
+      messages: '/api/messages',
+      groups: '/api/groups',
+      files: '/api/files'
+    }
+  });
 });
 
 // Gestion des WebSockets
@@ -57,12 +120,17 @@ app.use((req, res) => {
 // Gestion globale des erreurs
 app.use((err, req, res, next) => {
   console.error('Erreur serveur:', err);
-  res.status(500).json({ error: 'Erreur serveur interne' });
+  res.status(500).json({ 
+    error: 'Erreur serveur interne',
+    message: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
 });
 
 const PORT = process.env.PORT || 3000;
 
-server.listen(PORT, () => {
+server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Serveur démarré sur le port ${PORT}`);
-  console.log(`📡 WebSocket prêt sur ws://localhost:${PORT}`);
+  console.log(`📡 WebSocket prêt`);
+  console.log(`🌍 Environnement: ${process.env.NODE_ENV}`);
+  console.log(`🔗 URL publique: ${process.env.RAILWAY_PUBLIC_DOMAIN || 'localhost'}`);
 });
