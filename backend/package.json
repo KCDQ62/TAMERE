@@ -1,37 +1,27 @@
 {
+  "name": "communication-backend",
+  "version": "1.0.0",
+  "description": "Backend pour application de communication",
+  "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^7.0.0",
+    "socket.io": "^4.6.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^9.0.0",
+    "multer": "^1.4.5-lts.1",
+    "aws-sdk": "^2.1000.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.20"
   }
 }
-```
-
-### **Solution 5 : Variables Railway - Format correct**
-
-Dans Railway → Variables, ajoutez EXACTEMENT comme ceci :
-
-**Variable :**
-- **Key** : `MONGODB_URI`
-- **Value** : `mongodb+srv://contaban79_db_user:469s9UY4O3hN9qOz@cluster0.oqgy9s2.mongodb.net/communication-app?retryWrites=true&w=majority`
-
-**ATTENTION** : Pas de guillemets, pas d'espaces avant/après !
-
-### **Solution 6 : Forcer le redéploiement**
-
-1. Dans Railway, allez dans votre service backend
-2. Onglet **"Deployments"**
-3. Cliquez sur les 3 points du dernier déploiement
-4. Cliquez sur **"Redeploy"**
-
----
-
-## 🎯 Solution la plus probable :
-
-Le problème vient souvent du fait que **Railway ne trouve pas le bon répertoire**. Votre structure est :
-```
-/
-├── backend/
-│   ├── server.js
-│   └── config/database.js
-├── frontend/
-└── docker-compose.yml
