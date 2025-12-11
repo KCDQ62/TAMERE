@@ -23,10 +23,16 @@ class SocketManager {
     });
 
     // Événements de connexion
-    this.socket.on('connect', () => {
-      console.log('✅ Connecté au serveur WebSocket');
-      this.trigger('connected');
+   this.socket.on('connect', () => {
+  console.log('✅ Connecté au serveur WebSocket');
+  this.trigger('connected');
     });
+setTimeout(() => {
+  if (this.socket && this.socket.connected) {
+    console.log('Force trigger connected');
+    this.trigger('connected');
+  }
+}, 2000);
 
     this.socket.on('disconnect', () => {
       console.log('❌ Déconnecté du serveur WebSocket');

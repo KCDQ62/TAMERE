@@ -19,6 +19,38 @@ class ChatApp {
 
       // Se connecter au serveur WebSocket
       socket.connect();
+async init() {
+  if (this.initialized) return;
+
+  try {
+    // Vérifier l'authentification
+    if (!Auth.isAuthenticated()) {
+      window.location.href = 'login.html';
+      return;
+    }
+
+    // Initialiser l'interface
+    UI.init();
+
+    // Se connecter au serveur WebSocket
+    socket.connect();
+
+    // AJOUTER CE TIMEOUT DE SÉCURITÉ
+    setTimeout(() => {
+      if (!this.initialized) {
+        console.log('⚠️ Timeout - affichage forcé de l\'app');
+        document.getElementById('app').classList.remove('hidden');
+        this.loadInitialData();
+        Messaging.init();
+        Groups.init();
+        WebRTC.init();
+        this.initialized = true;
+      }
+    }, 3000); // Si pas connecté après 3 secondes, on affiche quand même
+
+    // Attendre la connexion
+    socket.on('connected', async () => {
+      // ... reste du code
 
       // Attendre la connexion
       socket.on('connected', async () => {
