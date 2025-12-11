@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inscription - SecureChat</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary: #5865f2;
+      --primary-hover: #4752c4;
+      --success: #3ba55d;
+      --danger: #ed4245;
+      --bg-primary: #1e1f22;
+      --bg-secondary: #2b2d31;
+      --text-primary: #f2f3f5;
+      --text-secondary: #b5bac1;
+      --text-muted: #80848e;
+      --border: #3f4147;
+      --input-bg: #1e1f22;
+    }
+
+    body {
+      font-family: 'gg sans', 'Noto Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+      background: linear-gradient(135deg, var(--bg-primary) 0%, #16171a 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .auth-container {
+      background: var(--bg-secondary);
+      border-radius: 12px;
+      padding: 40px;
+      width: 100%;
+      max-width: 480px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .auth-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+
+    .auth-header h1 {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .auth-header p {
+      color: var(--text-secondary);
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--text-primary);
+      font-size: 16px;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: var(--primary);
+    }
+
+    .form-group input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 14px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 8px;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .auth-footer {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .auth-footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .auth-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .error-message {
+      background: rgba(237, 66, 69, 0.1);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .error-message.show {
+      display: block;
+    }
+
+    .password-strength {
+      margin-top: 8px;
+      font-size: 12px;
+    }
+
+    .strength-bar {
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+
+    .strength-bar-fill {
+      height: 100%;
+      transition: all 0.3s;
+      width: 0%;
+    }
+
+    .strength-weak .strength-bar-fill {
+      background: var(--danger);
+      width: 33%;
+    }
+
+    .strength-medium .strength-bar-fill {
+      background: #faa61a;
+      width: 66%;
+    }
+
+    .strength-strong .strength-bar-fill {
+      background: var(--success);
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="auth-header">
+      <h1>Créer un compte</h1>
+      <p>Commencez à discuter dès maintenant</p>
+    </div>
+
+    <div id="errorMessage" class="error-message"></div>
+
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="username">Nom d'utilisateur</label>
+        <input type="text" id="username" name="username" placeholder="Votre nom d'utilisateur" required autocomplete="username" minlength="3" maxlength="20">
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="votreemail@exemple.com" required autocomplete="email">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Mot de passe</label>
+        <input type="password" id="password" name="password" placeholder="Minimum 6 caractères" required autocomplete="new-password" minlength="6">
+        <div class="password-strength" id="passwordStrength">
+          <div class="strength-bar">
+            <div class="strength-bar-fill"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirmer le mot de passe</label>
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Répétez votre mot de passe" required autocomplete="new-password">
+      </div>
+
+      <button type="submit" class="btn-primary" id="registerBtn">
+        S'inscrire
+      </button>
+    </form>
+
+    <div class="auth-footer">
+      Vous avez déjà un compte ? <a href="login.html">Se connecter</a>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = 'http://localhost:3000/api';
+
+    const registerForm = document.getElementById('registerForm');
+    const registerBtn = document.getElementById('registerBtn');
+    const errorMessage = document.getElementById('errorMessage');
+    const passwordInput = document.getElementById('password');
+    const confirmPasswordInput = document.getElementById('confirmPassword');
+    const passwordStrength = document.getElementById('passwordStrength');
+
+    // Vérifier la force du mot de passe
+    passwordInput.addEventListener('input', () => {
+      const password = passwordInput.value;
+      let strength = 0;
+
+      if (password.length >= 6) strength++;
+      if (password.length >= 10) strength++;
+      if (/[a-z]/.test(password) && /[A-Z]/.test(password)) strength++;
+      if (/\d/.test(password)) strength++;
+      if (/[^a-zA-Z0-9]/.test(password)) strength++;
+
+      passwordStrength.className = 'password-strength';
+      if (strength <= 2) {
+        passwordStrength.classList.add('strength-weak');
+      } else if (strength <= 4) {
+        passwordStrength.classList.add('strength-medium');
+      } else {
+        passwordStrength.classList.add('strength-strong');
+      }
+    });
+
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = passwordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+
+      // Vérifier que les mots de passe correspondent
+      if (password !== confirmPassword) {
+        showError('Les mots de passe ne correspondent pas');
+        return;
+      }
+
+      registerBtn.disabled = true;
+      registerBtn.textContent = 'Inscription...';
+      hideError();
+
+      try {
+        const response = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ username, email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+          window.location.href = 'index.html';
+        } else {
+          showError(data.error || 'Erreur lors de l\'inscription');
+        }
+      } catch (error) {
+        showError('Impossible de se connecter au serveur');
+      } finally {
+        registerBtn.disabled = false;
+        registerBtn.textContent = 'S\'inscrire';
+      }
+    });
+
+    function showError(message) {
+      errorMessage.textContent = message;
+      errorMessage.classList.add('show');
+    }
+
+    function hideError() {
+      errorMessage.classList.remove('show');
+    }
+
+    // Rediriger si déjà connecté
+    if (localStorage.getItem('token')) {
+      window.location.href = 'index.html';
+    }
+  </script>
+</body>
+</html>
