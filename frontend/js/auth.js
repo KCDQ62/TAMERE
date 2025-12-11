@@ -8,8 +8,23 @@ class AuthManager {
   // Vérifier si l'utilisateur est authentifié
   isAuthenticated() {
     this.token = localStorage.getItem('token');
-    this.user = JSON.parse(localStorage.getItem('user') || 'null');
-    return !!this.token && !!this.user;
+    const userStr = localStorage.getItem('user');
+    
+    // Si pas de token ou pas d'utilisateur, retourner false
+    if (!this.token || !userStr) {
+      return false;
+    }
+    
+    try {
+      this.user = JSON.parse(userStr);
+      return !!(this.token && this.user && this.user.id);
+    } catch (e) {
+      // Si le JSON est corrompu, nettoyer et retourner false
+      console.error('User data corrompu:', e);
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      return false;
+    }
   }
 
   // Obtenir le token

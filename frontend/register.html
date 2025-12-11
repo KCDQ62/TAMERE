@@ -3,9 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="autocomplete" content="off">
-  <title>Connexion - SecureChat</title> 
   <title>Inscription - SecureChat</title>
+  
+  <!-- Script pour masquer l'erreur MediaSession -->
+  <script>
+    window.addEventListener('error', function(e) {
+      if (e.message && (e.message.includes('MediaSession') || e.message.includes('enterpricturepicture'))) {
+        e.preventDefault();
+        return true;
+      }
+    }, true);
+  </script>
+  
   <style>
     * {
       margin: 0;
@@ -186,22 +195,6 @@
   </style>
 </head>
 <body>
-<body>
-  <script>
-    // Bloquer l'erreur MediaSession
-    if ('mediaSession' in navigator) {
-      try {
-        // Désactiver temporairement MediaSession
-        Object.defineProperty(navigator.mediaSession, 'setActionHandler', {
-          value: function() { return; }
-        });
-      } catch(e) {
-        console.log('MediaSession déjà défini');
-      }
-    }
-  </script>
-  
- 
   <div class="auth-container">
     <div class="auth-header">
       <h1>Créer un compte</h1>
@@ -213,17 +206,17 @@
     <form id="registerForm">
       <div class="form-group">
         <label for="username">Nom d'utilisateur</label>
-        <input type="text" id="username" name="username" placeholder="Votre nom d'utilisateur" required  minlength="3" maxlength="20">
+        <input type="text" id="username" name="username" placeholder="Votre nom d'utilisateur" required minlength="3" maxlength="20">
       </div>
 
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" placeholder="votreemail@exemple.com" required >
+        <input type="email" id="email" name="email" placeholder="votreemail@exemple.com" required>
       </div>
 
       <div class="form-group">
         <label for="password">Mot de passe</label>
-        <input type="password" id="password" name="password" placeholder="Minimum 6 caractères" required  minlength="6">
+        <input type="password" id="password" name="password" placeholder="Minimum 6 caractères" required minlength="6">
         <div class="password-strength" id="passwordStrength">
           <div class="strength-bar">
             <div class="strength-bar-fill"></div>
@@ -233,7 +226,7 @@
 
       <div class="form-group">
         <label for="confirmPassword">Confirmer le mot de passe</label>
-        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Répétez votre mot de passe" >
+        <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Répétez votre mot de passe" required>
       </div>
 
       <button type="submit" class="btn-primary" id="registerBtn">
@@ -330,10 +323,24 @@
       errorMessage.classList.remove('show');
     }
 
-    // Rediriger si déjà connecté
-    if (localStorage.getItem('token')) {
-      window.location.href = 'index.html';
-    }
+    // Rediriger si déjà connecté (vérification sécurisée)
+    (function checkAuth() {
+      const token = localStorage.getItem('token');
+      const userStr = localStorage.getItem('user');
+      
+      if (token && userStr) {
+        try {
+          const user = JSON.parse(userStr);
+          if (user && user.id) {
+            window.location.href = 'index.html';
+          }
+        } catch (e) {
+          // Si erreur, nettoyer le localStorage
+          console.error('Données corrompues, nettoyage...');
+          localStorage.clear();
+        }
+      }
+    })();
   </script>
 </body>
 </html>
