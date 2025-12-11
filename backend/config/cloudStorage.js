@@ -1,4 +1,3 @@
-javascript
 const AWS = require('aws-sdk');
 
 // Configuration S3
