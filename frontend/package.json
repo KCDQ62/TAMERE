@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Frontend pour application de communication",
   "scripts": {
+    "build": "echo 'No build needed for static site'",
     "start": "npx serve -s . -l $PORT"
   },
   "dependencies": {
