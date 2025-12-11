@@ -150,6 +150,21 @@
   </style>
 </head>
 <body>
+  <script>
+    // Bloquer l'erreur MediaSession
+    if ('mediaSession' in navigator) {
+      try {
+        // Désactiver temporairement MediaSession
+        Object.defineProperty(navigator.mediaSession, 'setActionHandler', {
+          value: function() { return; }
+        });
+      } catch(e) {
+        console.log('MediaSession déjà défini');
+      }
+    }
+  </script>
+  
+ 
   <div class="auth-container">
     <div class="auth-header">
       <h1>Bienvenue !</h1>
