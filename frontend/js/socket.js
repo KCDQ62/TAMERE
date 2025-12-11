@@ -1,6 +1,6 @@
 // Configuration de l'URL de l'API
-const API_URL = 'http://localhost:3000/api';
-const SOCKET_URL = 'http://localhost:3000';
+const API_URL = 'https://backend-production-1ce4.up.railway.app';
+const SOCKET_URL = 'https://backend-production-1ce4.up.railway.app';
 
 // Gestionnaire de connexion Socket.IO
 class SocketManager {

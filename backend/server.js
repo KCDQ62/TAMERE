@@ -3,6 +3,7 @@ const express = require('express');
 const http = require('http');
 const socketIo = require('socket.io');
 const cors = require('cors');
+const mongoose = require('mongoose');  // ⬅️ AJOUTEZ CETTE LIGNE
 const connectDB = require('./config/database');
 const socketHandler = require('./socket/socketHandler');
 
