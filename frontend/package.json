@@ -1,0 +1,11 @@
+{
+  "name": "communication-frontend",
+  "version": "1.0.0",
+  "description": "Frontend pour application de communication",
+  "scripts": {
+    "start": "npx serve -s . -l $PORT"
+  },
+  "dependencies": {
+    "serve": "^14.2.0"
+  }
+}
