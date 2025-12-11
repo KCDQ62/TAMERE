@@ -1,5 +1,5 @@
 // Configuration de l'URL de l'API
-const API_URL = 'https://backend-production-1ce4.up.railway.app';
+const API_URL = 'https://backend-production-1ce4.up.railway.app/api';
 const SOCKET_URL = 'https://backend-production-1ce4.up.railway.app';
 
 // Gestionnaire de connexion Socket.IO
@@ -7,6 +7,7 @@ class SocketManager {
   constructor() {
     this.socket = null;
     this.eventHandlers = new Map();
+    this.isConnected = false;
   }
 
   // Se connecter au serveur WebSocket
@@ -14,33 +15,35 @@ class SocketManager {
     const token = Auth.getToken();
     
     if (!token) {
-      console.error('Token manquant pour la connexion WebSocket');
+      console.error('❌ Token manquant pour la connexion WebSocket');
       return;
     }
 
+    console.log('🔌 Tentative de connexion WebSocket...');
+
     this.socket = io(SOCKET_URL, {
-      auth: { token }
+      auth: { token },
+      transports: ['websocket', 'polling'], // Essayer websocket en premier
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5
     });
 
     // Événements de connexion
-   this.socket.on('connect', () => {
-  console.log('✅ Connecté au serveur WebSocket');
-  this.trigger('connected');
+    this.socket.on('connect', () => {
+      console.log('✅ Connecté au serveur WebSocket');
+      this.isConnected = true;
+      this.trigger('connected');
     });
-setTimeout(() => {
-  if (this.socket && this.socket.connected) {
-    console.log('Force trigger connected');
-    this.trigger('connected');
-  }
-}, 2000);
 
-    this.socket.on('disconnect', () => {
-      console.log('❌ Déconnecté du serveur WebSocket');
+    this.socket.on('disconnect', (reason) => {
+      console.log('❌ Déconnecté du serveur WebSocket:', reason);
+      this.isConnected = false;
       this.trigger('disconnected');
     });
 
     this.socket.on('connect_error', (error) => {
-      console.error('Erreur de connexion WebSocket:', error);
+      console.error('❌ Erreur de connexion WebSocket:', error.message);
       this.trigger('error', error);
     });
 
@@ -106,6 +109,7 @@ setTimeout(() => {
     if (this.socket) {
       this.socket.disconnect();
       this.socket = null;
+      this.isConnected = false;
     }
   }
 
@@ -121,14 +125,22 @@ setTimeout(() => {
   trigger(event, data) {
     const handlers = this.eventHandlers.get(event);
     if (handlers) {
-      handlers.forEach(handler => handler(data));
+      handlers.forEach(handler => {
+        try {
+          handler(data);
+        } catch (error) {
+          console.error(`Erreur dans le handler ${event}:`, error);
+        }
+      });
     }
   }
 
   // Émettre un événement
   emit(event, data) {
-    if (this.socket) {
+    if (this.socket && this.isConnected) {
       this.socket.emit(event, data);
+    } else {
+      console.warn(`⚠️ Impossible d'émettre ${event}: socket non connecté`);
     }
   }
 
