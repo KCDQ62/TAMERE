@@ -19,38 +19,19 @@ class ChatApp {
 
       // Se connecter au serveur WebSocket
       socket.connect();
-async init() {
-  if (this.initialized) return;
 
-  try {
-    // Vérifier l'authentification
-    if (!Auth.isAuthenticated()) {
-      window.location.href = 'login.html';
-      return;
-    }
-
-    // Initialiser l'interface
-    UI.init();
-
-    // Se connecter au serveur WebSocket
-    socket.connect();
-
-    // AJOUTER CE TIMEOUT DE SÉCURITÉ
-    setTimeout(() => {
-      if (!this.initialized) {
-        console.log('⚠️ Timeout - affichage forcé de l\'app');
-        document.getElementById('app').classList.remove('hidden');
-        this.loadInitialData();
-        Messaging.init();
-        Groups.init();
-        WebRTC.init();
-        this.initialized = true;
-      }
-    }, 3000); // Si pas connecté après 3 secondes, on affiche quand même
-
-    // Attendre la connexion
-    socket.on('connected', async () => {
-      // ... reste du code
+      // Timeout de sécurité - afficher l'app même si pas connecté
+      setTimeout(() => {
+        if (!this.initialized) {
+          console.log('⚠️ Timeout - affichage forcé de l\'app');
+          document.getElementById('app').classList.remove('hidden');
+          this.loadInitialData();
+          Messaging.init();
+          Groups.init();
+          WebRTC.init();
+          this.initialized = true;
+        }
+      }, 3000);
 
       // Attendre la connexion
       socket.on('connected', async () => {
@@ -134,8 +115,8 @@ async init() {
       <div class="error-content">
         <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" x2="12"></line>
-          <line x1="12" y1="16" x2="12.01" x2="16"></line>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
         </svg>
         <h3>Connexion perdue</h3>
         <p>Tentative de reconnexion...</p>
