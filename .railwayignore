@@ -1,0 +1,8 @@
+cat > .railwayignore << 'EOF'
+frontend/
+coturn/
+docker-compose.yml
+.git/
+node_modules/
+*.log
+EOF
