@@ -1,5 +1,5 @@
 // Configuration de l'URL de l'API
-const API_URL = 'https://backend-production-1ce4.up.railway.app/api';
+const API_URL = 'https://backend-production-1ce4.up.railway.app';
 const SOCKET_URL = 'https://backend-production-1ce4.up.railway.app';
 
 // Gestionnaire de connexion Socket.IO
