@@ -2,6 +2,7 @@
 class ChatApp {
   constructor() {
     this.initialized = false;
+    this.connectionTimeout = null;
   }
 
   async init() {
@@ -14,71 +15,79 @@ class ChatApp {
         return;
       }
 
-      // Initialiser l'interface
+      // Initialiser l'interface IMMÉDIATEMENT (pas d'attente)
       UI.init();
 
-      // Se connecter au serveur WebSocket
+      // Afficher l'app TOUT DE SUITE (même sans socket)
+      document.getElementById('app').classList.remove('hidden');
+      console.log('✅ Interface affichée');
+
+      // Charger les données initiales (sans socket)
+      await this.loadInitialData();
+
+      // Initialiser les modules (ils géreront l'absence de socket)
+      Messaging.init();
+      Groups.init();
+      WebRTC.init();
+
+      // MAINTENANT se connecter au socket
       socket.connect();
 
-      // Timeout de sécurité - afficher l'app même si pas connecté
-      setTimeout(() => {
-        if (!this.initialized) {
-          console.log('⚠️ Timeout - affichage forcé de l\'app');
-          document.getElementById('app').classList.remove('hidden');
-          this.loadInitialData();
-          Messaging.init();
-          Groups.init();
-          WebRTC.init();
-          this.initialized = true;
+      // Timeout de CONNEXION uniquement (pas d'affichage)
+      this.connectionTimeout = setTimeout(() => {
+        if (!socket.isConnected) {
+          console.warn('⚠️ Socket non connecté après 5s - mode dégradé');
+          this.showConnectionWarning();
         }
-      }, 3000);
+      }, 5000);
 
-      // Attendre la connexion
-      socket.on('connected', async () => {
-        console.log('Application connectée');
+      // Événements socket
+      socket.on('connected', () => {
+        console.log('✅ Socket connecté');
+        clearTimeout(this.connectionTimeout);
+        this.hideConnectionWarning();
         
-        // Charger les données initiales
-        await this.loadInitialData();
+        // Mettre à jour le statut MAINTENANT que le socket existe
+        socket.updateOnlineStatus('online');
         
-        // Initialiser les modules
-        Messaging.init();
-        Groups.init();
-        WebRTC.init();
-
-        // Afficher l'application
-        document.getElementById('app').classList.remove('hidden');
+        // Rejoindre les groupes
+        const groupIds = Array.from(Groups.groups.keys());
+        if (groupIds.length > 0) {
+          socket.joinGroups(groupIds);
+        }
         
         this.initialized = true;
       });
 
-      // Gérer la déconnexion
       socket.on('disconnected', () => {
-        console.log('Déconnecté du serveur');
-        this.showConnectionError();
+        console.log('⚠️ Socket déconnecté');
+        this.showConnectionWarning();
       });
 
-      // Gérer les erreurs
       socket.on('error', (error) => {
-        console.error('Erreur de connexion:', error);
-        this.showConnectionError();
+        console.error('❌ Erreur socket:', error);
+        this.showConnectionWarning();
       });
 
     } catch (error) {
-      console.error('Erreur d\'initialisation:', error);
+      console.error('❌ Erreur d\'initialisation:', error);
       this.showError('Erreur d\'initialisation de l\'application');
     }
   }
 
   async loadInitialData() {
     try {
-      // Charger les conversations
-      await this.loadConversations();
+      // Charger le profil utilisateur
+      await UI.loadUserProfile();
       
-      // Charger les groupes (déjà fait dans Groups.init())
-      // Groups.loadGroups() est appelé automatiquement
+      // Charger les groupes
+      await Groups.loadGroups();
+      
+      // Charger les conversations (si endpoint existe)
+      // await this.loadConversations();
       
     } catch (error) {
-      console.error('Erreur de chargement des données:', error);
+      console.error('❌ Erreur chargement données:', error);
     }
   }
 
@@ -94,41 +103,44 @@ class ChatApp {
 
       const conversations = await response.json();
       
-      // Ajouter chaque conversation à l'interface
       conversations.forEach(conversation => {
         UI.addConversation(conversation);
       });
 
-      // Sélectionner la première conversation si disponible
       if (conversations.length > 0) {
         UI.showConversation(conversations[0].id);
       }
     } catch (error) {
-      console.error('Erreur de chargement des conversations:', error);
+      console.error('❌ Erreur chargement conversations:', error);
     }
   }
 
-  showConnectionError() {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'connection-error';
-    errorDiv.innerHTML = `
-      <div class="error-content">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="10"></circle>
-          <line x1="12" y1="8" x2="12" y2="12"></line>
-          <line x1="12" y1="16" x2="12.01" y2="16"></line>
-        </svg>
-        <h3>Connexion perdue</h3>
-        <p>Tentative de reconnexion...</p>
-      </div>
-    `;
+  showConnectionWarning() {
+    let warningDiv = document.getElementById('connection-warning');
     
-    document.body.appendChild(errorDiv);
+    if (!warningDiv) {
+      warningDiv = document.createElement('div');
+      warningDiv.id = 'connection-warning';
+      warningDiv.className = 'connection-warning';
+      warningDiv.innerHTML = `
+        <div class="warning-content">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+          <span>Connexion en cours...</span>
+        </div>
+      `;
+      document.body.appendChild(warningDiv);
+    }
+  }
 
-    // Retirer l'erreur à la reconnexion
-    socket.on('connected', () => {
-      errorDiv.remove();
-    });
+  hideConnectionWarning() {
+    const warningDiv = document.getElementById('connection-warning');
+    if (warningDiv) {
+      warningDiv.remove();
+    }
   }
 
   showError(message) {
@@ -145,19 +157,20 @@ class ChatApp {
     document.body.appendChild(errorDiv);
   }
 
-  // Gérer la visibilité de la page
   handleVisibilityChange() {
     if (document.hidden) {
-      // Page cachée - peut-être réduire l'activité
-      socket.updateOnlineStatus('away');
+      if (socket.isConnected) {
+        socket.updateOnlineStatus('away');
+      }
     } else {
-      // Page visible - reprendre l'activité normale
-      socket.updateOnlineStatus('online');
+      if (socket.isConnected) {
+        socket.updateOnlineStatus('online');
+      }
     }
   }
 
-  // Nettoyer avant de quitter
   cleanup() {
+    clearTimeout(this.connectionTimeout);
     socket.disconnect();
     WebRTC.endCall();
   }
@@ -181,10 +194,34 @@ window.addEventListener('beforeunload', () => {
   app.cleanup();
 });
 
-// Ajouter les styles pour les erreurs
+// Styles pour les erreurs et warnings
 const errorStyles = document.createElement('style');
 errorStyles.textContent = `
-  .connection-error,
+  .connection-warning {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: var(--warning);
+    color: #000;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  }
+
+  .warning-content {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .warning-content svg {
+    animation: pulse 2s infinite;
+  }
+
   .app-error {
     position: fixed;
     top: 0;
@@ -206,23 +243,15 @@ errorStyles.textContent = `
     max-width: 400px;
   }
 
-  .error-content svg {
-    color: var(--warning);
-    margin-bottom: 20px;
-  }
-
   .error-content h3 {
     font-size: 24px;
     margin-bottom: 12px;
+    color: var(--danger);
   }
 
   .error-content p {
     color: var(--text-secondary);
     margin-bottom: 20px;
-  }
-
-  .connection-error .error-content svg {
-    animation: pulse 2s infinite;
   }
 
   @keyframes pulse {
