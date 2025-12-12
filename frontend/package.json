@@ -10,27 +10,3 @@
     "express": "^4.18.2"
   }
 }
-```
-
----
-
-## 📁 **STRUCTURE FINALE DE TON PROJET**
-```
-frontend/
-├── server.js          ← CRÉER CE FICHIER
-├── package.json       ← REMPLACER LE CONTENU
-├── railway.json       ← OK (ne pas toucher)
-├── index.html         ← OK
-├── login.html         ← OK
-├── register.html      ← OK
-├── css/
-│   └── style.css      ← OK
-└── js/
-    ├── app.js         ← OK
-    ├── auth.js        ← OK
-    ├── socket.js      ← OK
-    ├── ui.js          ← OK
-    ├── messaging.js   ← OK
-    ├── groups.js      ← OK
-    ├── fileUpload.js  ← OK
-    └── webrtc.js      ← OK
