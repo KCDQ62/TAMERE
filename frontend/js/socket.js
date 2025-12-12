@@ -1,5 +1,5 @@
 // Configuration de l'URL de l'API
-const API_URL = 'https://backend-production-1ce4.up.railway.app';
+const API_URL = 'https://backend-production-1ce4.up.railway.app/api';
 const SOCKET_URL = 'https://backend-production-1ce4.up.railway.app';
 
 // Gestionnaire de connexion Socket.IO
@@ -16,17 +16,22 @@ class SocketManager {
     
     if (!token) {
       console.error('❌ Token manquant pour la connexion WebSocket');
+      console.log('💡 Redirection vers login...');
+      window.location.href = 'login.html';
       return;
     }
 
     console.log('🔌 Tentative de connexion WebSocket...');
+    console.log('🌐 URL:', SOCKET_URL);
+    console.log('🔑 Token:', token.substring(0, 20) + '...');
 
     this.socket = io(SOCKET_URL, {
       auth: { token },
-      transports: ['websocket', 'polling'], // Essayer websocket en premier
+      transports: ['websocket', 'polling'],
       reconnection: true,
       reconnectionDelay: 1000,
-      reconnectionAttempts: 5
+      reconnectionAttempts: 5,
+      timeout: 10000
     });
 
     // Événements de connexion
