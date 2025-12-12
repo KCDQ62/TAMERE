@@ -3,13 +3,15 @@ const User = require('../models/User');
 
 const auth = async (req, res, next) => {
   try {
-    // Récupérer le token du header
-    const token = req.header('Authorization')?.replace('Bearer ', '');
+    // Récupérer le token depuis l'en-tête Authorization
+    const authHeader = req.headers.authorization;
     
-    if (!token) {
-      return res.status(401).json({ error: 'Authentification requise' });
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Token manquant' });
     }
 
+    const token = authHeader.substring(7); // Retirer "Bearer "
+    
     // Vérifier le token
     const decoded = verifyToken(token);
     
@@ -17,7 +19,7 @@ const auth = async (req, res, next) => {
       return res.status(401).json({ error: 'Token invalide' });
     }
 
-    // Trouver l'utilisateur
+    // Récupérer l'utilisateur
     const user = await User.findById(decoded.id).select('-password');
     
     if (!user) {
@@ -26,6 +28,8 @@ const auth = async (req, res, next) => {
 
     // Ajouter l'utilisateur à la requête
     req.user = user;
+    req.userId = user._id;
+    
     next();
   } catch (error) {
     console.error('Erreur auth middleware:', error);

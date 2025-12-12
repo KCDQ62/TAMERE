@@ -1,27 +1,39 @@
 {
-  "name": "communication-backend",
+  "name": "securechat-backend",
   "version": "1.0.0",
-  "description": "Backend pour application de communication",
+  "description": "Backend pour SecureChat - Application de messagerie sécurisée",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js"
+    "dev": "nodemon server.js",
+    "check-env": "node scripts/check-env.js",
+    "test": "echo \"No tests yet\" && exit 0"
   },
-  "keywords": [],
+  "keywords": [
+    "chat",
+    "messaging",
+    "websocket",
+    "socketio",
+    "webrtc"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2",
-    "mongoose": "^7.0.0",
-    "socket.io": "^4.6.0",
+    "mongoose": "^7.6.3",
+    "socket.io": "^4.6.2",
     "cors": "^2.8.5",
-    "dotenv": "^16.0.3",
+    "dotenv": "^16.3.1",
     "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.0",
+    "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
-    "aws-sdk": "^2.1000.0"
+    "aws-sdk": "^2.1478.0"
   },
   "devDependencies": {
-    "nodemon": "^2.0.20"
+    "nodemon": "^3.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
   }
 }
